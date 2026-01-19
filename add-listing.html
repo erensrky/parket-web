@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parket - Yeni İlan Ekle</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f4f7f6; color: #333; }
+        
+        /* Navbar */
+        header { display: flex; justify-content: center; padding: 20px; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .logo { font-size: 24px; font-weight: bold; color: #2c3e50; text-decoration: none; }
+        .logo span { color: #27ae60; }
+
+        .container { max-width: 600px; margin: 40px auto; padding: 20px; }
+        .form-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        
+        h2 { text-align: center; margin-bottom: 30px; color: #2c3e50; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        .input-group input, .input-group textarea, .input-group select { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 1rem;
+        }
+        .input-group textarea { resize: vertical; height: 100px; }
+
+        /* Buton & Loader */
+        .submit-btn { 
+            width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; 
+            font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.3s;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .submit-btn:hover { background: #219150; }
+        .submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        .loader {
+            border: 3px solid #f3f3f3; border-top: 3px solid #fff; border-radius: 50%;
+            width: 20px; height: 20px; animation: spin 1s linear infinite; display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="anasayfa.html" class="logo">Park<span>et</span></a>
+    </header>
+
+    <div class="container">
+        <div class="form-box">
+            <h2>Otoparkını Kiraya Ver</h2>
+            
+            <form id="listing-form">
+                
+                <div class="input-group">
+                    <label>İlan Başlığı</label>
+                    <input type="text" id="title" placeholder="Örn: Kızılay Meydanı Yanı Kapalı Garaj" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Konum (Semt/Mahalle)</label>
+                    <input type="text" id="location" placeholder="Örn: Bahçelievler, Ankara" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Saatlik Ücret (₺)</label>
+                    <input type="number" id="price" placeholder="75" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Otopark Tipi</label>
+                    <select id="type">
+                        <option value="Kapalı Garaj">Kapalı Garaj</option>
+                        <option value="Açık Otopark">Açık Otopark</option>
+                        <option value="Site İçi">Site İçi</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Açıklama</label>
+                    <textarea id="description" placeholder="Garajın özelliklerini anlat... (Kamera var mı? Giriş nasıl?)" required></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Fotoğraf Linki (URL)</label>
+                    <input type="url" id="image-url" placeholder="https://..." value="https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=500&q=80">
+                    <small style="color:#777">Şimdilik test için hazır bir link koyduk.</small>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    <span class="btn-text">İlanı Yayınla</span>
+                    <div class="loader"></div>
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        // Firestore fonksiyonlarını ekledik (addDoc, collection, getFirestore)
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        // --- SENİN CONFIG BİLGİLERİN ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyATxJ1zjtjwfUxlHTQEOyi2KusIWOnh694",
+          authDomain: "parkbnb-c056e.firebaseapp.com",
+          projectId: "parkbnb-c056e",
+          storageBucket: "parkbnb-c056e.firebasestorage.app",
+          messagingSenderId: "436144809199",
+          appId: "1:436144809199:web:1a7e0f26d11994970ba71a",
+          measurementId: "G-KPCKCR48KF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app); // Veritabanını başlat
+        const auth = getAuth(app);
+
+        let currentUser = null;
+
+        // Kullanıcı giriş yapmış mı kontrol et
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+            } else {
+                alert("İlan vermek için önce giriş yapmalısın!");
+                window.location.href = "login.html";
+            }
+        });
+
+        // Form Gönderme İşlemi
+        document.getElementById("listing-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            if(!currentUser) {
+                alert("Lütfen giriş yapın.");
+                return;
+            }
+
+            // Loading başlat
+            const btn = document.getElementById("submit-btn");
+            const text = btn.querySelector('.btn-text');
+            const loader = btn.querySelector('.loader');
+            
+            btn.disabled = true;
+            text.style.display = 'none';
+            loader.style.display = 'block';
+
+            // Verileri al
+            const title = document.getElementById("title").value;
+            const location = document.getElementById("location").value;
+            const price = document.getElementById("price").value;
+            const type = document.getElementById("type").value;
+            const description = document.getElementById("description").value;
+            const imageUrl = document.getElementById("image-url").value;
+
+            try {
+                // FIRESTORE'A KAYDETME KOMUTU
+                // "listings" adında bir koleksiyon oluşturur ve içine atar
+                await addDoc(collection(db, "listings"), {
+                    title: title,
+                    location: location,
+                    price: price,
+                    type: type,
+                    description: description,
+                    imageUrl: imageUrl,
+                    userId: currentUser.uid, // Kimin eklediği belli olsun
+                    userEmail: currentUser.email,
+                    createdAt: serverTimestamp() // Hangi tarihte eklendi
+                });
+
+                alert("İlanın başarıyla yayınlandı! 🎉");
+                window.location.href = "listings.html"; // İlanlar sayfasına git
+
+            } catch (error) {
+                console.error("Hata:", error);
+                alert("Bir hata oluştu: " + error.message);
+                
+                // Loading durdur
+                btn.disabled = false;
+                text.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

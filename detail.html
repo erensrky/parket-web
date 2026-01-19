@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parket - İlan Detayı</title>
+    <style>
+        /* --- Tasarım Kodları (Aynı) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f4f7f6; color: #333; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 24px; font-weight: bold; color: #2c3e50; text-decoration: none; }
+        .logo span { color: #27ae60; }
+        nav a { text-decoration: none; color: #555; margin-left: 20px; font-weight: 500; }
+        .btn-primary { background-color: #27ae60; color: white !important; padding: 8px 15px; border-radius: 20px; }
+        
+        .container { max-width: 1100px; margin: 30px auto; display: flex; gap: 40px; padding: 0 20px; position: relative; min-height: 80vh; }
+        .details-column { flex: 2; }
+        .gallery img { width: 100%; height: 400px; object-fit: cover; border-radius: 15px; margin-bottom: 20px; }
+        .title-section h1 { font-size: 2rem; color: #2c3e50; margin-bottom: 10px; }
+        .title-section p { color: #7f8c8d; font-size: 1.1rem; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .host-info { display: flex; align-items: center; margin-bottom: 20px; }
+        .host-avatar { width: 50px; height: 50px; border-radius: 50%; background: #ddd; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #555; }
+        .description { line-height: 1.6; margin-bottom: 30px; color: #444; white-space: pre-wrap; } /* Satır başlarını korusun */
+        .features-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .feature { display: flex; align-items: center; color: #555; }
+        .booking-column { flex: 1; }
+        .booking-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); position: sticky; top: 100px; }
+        .price-header { font-size: 1.5rem; font-weight: bold; color: #2c3e50; margin-bottom: 20px; }
+        .price-header span { font-size: 1rem; color: #777; font-weight: normal; }
+        .date-picker { border: 1px solid #ddd; border-radius: 8px; padding: 10px; width: 100%; margin-bottom: 15px; }
+        .summary { margin: 20px 0; border-top: 1px solid #eee; padding-top: 15px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; color: #555; }
+        .total-row { display: flex; justify-content: space-between; font-weight: bold; color: #2c3e50; font-size: 1.1rem; margin-top: 15px; }
+        .btn-reserve { width: 100%; background: #e74c3c; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        .btn-reserve:hover { background: #c0392b; }
+        .map-placeholder { width: 100%; height: 250px; background-color: #e0e0e0; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #777; font-weight: bold; }
+
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .booking-card { position: static; }
+            .gallery img { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="anasayfa.html" class="logo">Park<span>et</span></a>
+        <nav>
+            <a href="login.html">Giriş Yap</a>
+            <a href="add-listing.html" class="btn-primary">İlan Ver</a>
+        </nav>
+    </header>
+
+    <div class="container" id="main-content">
+        <div style="width:100%; text-align:center; margin-top:50px; font-size:1.2rem; color:#777;" id="loading-msg">
+            İlan detayları yükleniyor...
+        </div>
+
+        <div id="content-area" style="display:none; width:100%; display:flex; gap:40px; flex-wrap:wrap;">
+            
+            <main class="details-column" style="flex:2; min-width: 300px;">
+                <div class="gallery">
+                    <img id="detail-img" src="" alt="Garaj Görseli">
+                </div>
+
+                <div class="title-section">
+                    <h1 id="detail-title">...</h1>
+                    <p>
+                        <span id="detail-location">...</span> • 
+                        <span style="color:#f39c12">★ 5.0</span>
+                    </p>
+                </div>
+
+                <div class="host-info">
+                    <div class="host-avatar">👤</div>
+                    <div>
+                        <strong id="detail-owner">Yer Sahibi: ...</strong><br>
+                        <span style="font-size: 0.9rem; color:#777" id="detail-type">...</span>
+                    </div>
+                </div>
+
+                <div class="description">
+                    <h3>Açıklama</h3>
+                    <p id="detail-desc">...</p>
+                </div>
+
+                <h3>Bu mekanın sundukları</h3>
+                <div class="features-list">
+                    <div class="feature">📷 Güvenlik Kamerası</div>
+                    <div class="feature">⚡ Elektrikli Şarj</div>
+                    <div class="feature">🅿️ Geniş Park Alanı</div>
+                    <div class="feature">🔑 Otomatik Kapı</div>
+                </div>
+
+                <h3>Konum</h3>
+                <div class="map-placeholder">
+                    [HARİTA ENTEGRASYONU GELECEK]
+                </div>
+            </main>
+
+            <aside class="booking-column" style="flex:1; min-width: 300px;">
+                <div class="booking-card">
+                    <div class="price-header"><span id="detail-price">0</span>₺ <span>/ saat</span></div>
+                    
+                    <label style="font-size:0.9rem; display:block; margin-bottom:5px;">Giriş Saati</label>
+                    <input type="datetime-local" class="date-picker" id="start-date" onchange="calculateTotal()">
+                    
+                    <label style="font-size:0.9rem; display:block; margin-bottom:5px;">Çıkış Saati</label>
+                    <input type="datetime-local" class="date-picker" id="end-date" onchange="calculateTotal()">
+
+                    <div class="summary">
+                        <div class="summary-row">
+                            <span id="hours-label">0 Saat</span>
+                            <span id="subtotal">0₺</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Hizmet Bedeli</span>
+                            <span>20₺</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Toplam</span>
+                            <span id="total-price">20₺</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-reserve" onclick="alert('Rezervasyon sistemi sonraki aşama! 🚀')">Rezervasyon Yap</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        // 'doc' ve 'getDoc' tek bir belge çekmek için kullanılır
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // --- SENİN CONFIG BİLGİLERİN ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyATxJ1zjtjwfUxlHTQEOyi2KusIWOnh694",
+          authDomain: "parkbnb-c056e.firebaseapp.com",
+          projectId: "parkbnb-c056e",
+          storageBucket: "parkbnb-c056e.firebasestorage.app",
+          messagingSenderId: "436144809199",
+          appId: "1:436144809199:web:1a7e0f26d11994970ba71a",
+          measurementId: "G-KPCKCR48KF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // URL'den ID'yi alma fonksiyonu
+        function getListingId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("id");
+        }
+
+        async function loadListingDetails() {
+            const listingId = getListingId();
+            const loadingMsg = document.getElementById("loading-msg");
+            const contentArea = document.getElementById("content-area");
+
+            if (!listingId) {
+                loadingMsg.innerHTML = "Hata: İlan ID'si bulunamadı.";
+                return;
+            }
+
+            try {
+                // Veritabanından o ID'li belgeyi çek
+                const docRef = doc(db, "listings", listingId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // --- VERİLERİ YERİNE KOY ---
+                    document.getElementById("detail-title").innerText = data.title;
+                    document.getElementById("detail-location").innerText = data.location;
+                    document.getElementById("detail-price").innerText = data.price;
+                    document.getElementById("detail-desc").innerText = data.description;
+                    document.getElementById("detail-type").innerText = data.type;
+                    
+                    // Resim (Yoksa varsayılan)
+                    const imgUrl = data.imageUrl || "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=1000&q=80";
+                    document.getElementById("detail-img").src = imgUrl;
+
+                    // Ekleyen kişinin maili (Adı varsa onu da alabiliriz ama şimdilik mail)
+                    // Eğer 'userEmail' kaydettiysen onu yaz, yoksa 'Gizli Kullanıcı' de
+                    document.getElementById("detail-owner").innerText = "İlan Sahibi: " + (data.userEmail || "Kullanıcı");
+
+                    // Yükleme bitti, içeriği göster
+                    loadingMsg.style.display = "none";
+                    contentArea.style.display = "flex"; // Flex yapısını korumak için
+
+                    // Fiyat hesaplama fonksiyonu için global değişkeni güncelle (HTML scripti erişsin diye)
+                    window.currentHourlyRate = parseInt(data.price); 
+
+                } else {
+                    loadingMsg.innerHTML = "Üzgünüz, böyle bir ilan bulunamadı.";
+                }
+
+            } catch (error) {
+                console.error("Hata:", error);
+                loadingMsg.innerHTML = "Bir hata oluştu. Lütfen tekrar deneyin.";
+            }
+        }
+
+        loadListingDetails();
+    </script>
+
+    <script>
+        // Başlangıçta varsayılan fiyat (Veri gelince güncellenecek)
+        window.currentHourlyRate = 0;
+
+        function calculateTotal() {
+            var startInput = document.getElementById("start-date").value;
+            var endInput = document.getElementById("end-date").value;
+            
+            // Veritabanından gelen fiyatı kullan
+            var hourlyRate = window.currentHourlyRate; 
+            var serviceFee = 20;
+
+            if (!startInput || !endInput || hourlyRate === 0) return;
+
+            var startDate = new Date(startInput);
+            var endDate = new Date(endInput);
+            var diff = endDate - startDate;
+            var hours = diff / (1000 * 60 * 60);
+
+            if (hours <= 0) {
+                document.getElementById("hours-label").innerText = "Hatalı Saat";
+                document.getElementById("total-price").innerText = "---";
+                return;
+            }
+
+            hours = Math.ceil(hours); 
+            var subtotal = hours * hourlyRate;
+            var total = subtotal + serviceFee;
+
+            document.getElementById("hours-label").innerText = hourlyRate + "₺ x " + hours + " Saat";
+            document.getElementById("subtotal").innerText = subtotal + "₺";
+            document.getElementById("total-price").innerText = total + "₺";
+        }
+    </script>
+</body>
+</html>

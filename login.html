@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parket - Giriş Yap / Kayıt Ol</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f4f7f6; color: #333; }
+        header { display: flex; justify-content: center; padding: 20px; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .logo { font-size: 24px; font-weight: bold; color: #2c3e50; text-decoration: none; }
+        .logo span { color: #27ae60; }
+        .container { display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px; }
+        .form-box { background: white; width: 100%; max-width: 400px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        /* Geçiş Butonları */
+        .toggle-btn-container { display: flex; margin-bottom: 30px; position: relative; box-shadow: 0 0 5px rgba(0,0,0,0.1); border-radius: 30px; overflow: hidden; }
+        .toggle-btn { flex: 1; padding: 10px 0; border: none; background: transparent; cursor: pointer; font-weight: bold; outline: none; transition: 0.3s; }
+        #btn-login { color: white; background: #27ae60; }
+        #btn-register { color: #555; background: #fff; }
+
+        /* Form Alanları */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; color: #777; font-size: 0.9rem; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; }
+        .input-group input:focus { border-color: #27ae60; }
+        
+        /* Modern Buton ve Loading Spinner */
+        .submit-btn { 
+            width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; 
+            font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.3s;
+            display: flex; justify-content: center; align-items: center; height: 45px;
+        }
+        .submit-btn:hover { background: #219150; }
+        .submit-btn:disabled { background: #95a5a6; cursor: not-allowed; }
+
+        /* Dönen Yuvarlak (Spinner) CSS'i */
+        .loader {
+            border: 3px solid #f3f3f3; border-top: 3px solid #fff; border-radius: 50%;
+            width: 20px; height: 20px; animation: spin 1s linear infinite; display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Hata Mesajı Kutusu */
+        .error-msg { color: #e74c3c; font-size: 0.9rem; margin-bottom: 15px; display: none; text-align: center; }
+
+        #register-form { display: none; }
+        .bottom-text { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #777; }
+        .bottom-text a { color: #27ae60; text-decoration: none; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="anasayfa.html" class="logo">Park<span>et</span></a>
+    </header>
+
+    <div class="container">
+        <div class="form-box">
+            <div id="error-box" class="error-msg"></div>
+
+            <div class="toggle-btn-container">
+                <button id="btn-login" class="toggle-btn" onclick="showLogin()">Giriş Yap</button>
+                <button id="btn-register" class="toggle-btn" onclick="showRegister()">Kayıt Ol</button>
+            </div>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label>E-posta Adresi</label>
+                    <input type="email" id="login-email" required placeholder="ornek@mail.com">
+                </div>
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" id="login-password" required placeholder="******">
+                </div>
+                <button type="submit" class="submit-btn" id="login-submit-btn">
+                    <span class="btn-text">Giriş Yap</span>
+                    <div class="loader"></div>
+                </button>
+            </form>
+
+            <form id="register-form">
+                <div class="input-group">
+                    <label>Ad Soyad</label>
+                    <input type="text" id="reg-name" required placeholder="Adınız Soyadınız">
+                </div>
+
+                <div class="input-group">
+                    <label>Doğum Tarihi</label>
+                    <input type="date" id="reg-dob" required>
+                </div>
+
+                <div class="input-group">
+                    <label>E-posta Adresi</label>
+                    <input type="email" id="reg-email" required placeholder="ornek@mail.com">
+                </div>
+
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" id="reg-password" required placeholder="En az 6 karakter">
+                </div>
+
+                <div class="input-group">
+                    <label>Şifre Tekrar</label>
+                    <input type="password" id="reg-password-confirm" required placeholder="Şifrenizi tekrar girin">
+                </div>
+
+                <button type="submit" class="submit-btn" id="reg-submit-btn">
+                    <span class="btn-text">Üye Ol</span>
+                    <div class="loader"></div>
+                </button>
+                
+                <p class="bottom-text">Hesabın var mı? <a onclick="showLogin()">Giriş Yap</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        // updateProfile'ı da ekledik
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        // --- SENİN CONFIG BİLGİLERİNİ BURAYA YAPIŞTIR ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyATxJ1zjtjwfUxlHTQEOyi2KusIWOnh694",
+          authDomain: "parkbnb-c056e.firebaseapp.com",
+          projectId: "parkbnb-c056e",
+          storageBucket: "parkbnb-c056e.firebasestorage.app",
+          messagingSenderId: "436144809199",
+          appId: "1:436144809199:web:1a7e0f26d11994970ba71a",
+          measurementId: "G-KPCKCR48KF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // UI Yardımcı Fonksiyonu: Loading Göster/Gizle
+        function setLoading(btnId, isLoading) {
+            const btn = document.getElementById(btnId);
+            const text = btn.querySelector('.btn-text');
+            const loader = btn.querySelector('.loader');
+
+            if (isLoading) {
+                btn.disabled = true;
+                text.style.display = 'none';
+                loader.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                text.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        }
+
+        // UI Yardımcı Fonksiyonu: Hata Göster
+        function showError(msg) {
+            const errBox = document.getElementById("error-box");
+            errBox.innerText = msg;
+            errBox.style.display = "block";
+            // 3 saniye sonra hatayı gizle
+            setTimeout(() => { errBox.style.display = "none"; }, 3000);
+        }
+
+        // --- KAYIT OL İŞLEMİ ---
+        document.getElementById("register-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            
+            // Değerleri al
+            const name = document.getElementById("reg-name").value;
+            const dob = document.getElementById("reg-dob").value;
+            const email = document.getElementById("reg-email").value;
+            const password = document.getElementById("reg-password").value;
+            const confirmPass = document.getElementById("reg-password-confirm").value;
+
+            // Kontroller
+            if (password !== confirmPass) {
+                showError("Şifreler birbiriyle uyuşmuyor!");
+                return;
+            }
+
+            // Yükleniyor başlat
+            setLoading("reg-submit-btn", true);
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    // KULLANICI ADINI FIREBASE'E KAYDET (updateProfile)
+                    updateProfile(user, {
+                        displayName: name
+                        // Not: Doğum tarihi Firebase Auth profilinde tutulmaz.
+                        // Bunu ileride Veritabanına (Firestore) kaydedeceğiz.
+                    }).then(() => {
+                        // İşlem tamam, alert yok, direkt yönlendir
+                        window.location.href = "anasayfa.html"; 
+                    });
+                })
+                .catch((error) => {
+                    setLoading("reg-submit-btn", false); // Yükleniyor'u durdur
+                    let msg = "Kayıt hatası oluştu.";
+                    if(error.message.includes("email-already-in-use")) msg = "Bu e-posta zaten kullanımda.";
+                    if(error.message.includes("weak-password")) msg = "Şifre çok zayıf.";
+                    showError(msg);
+                });
+        });
+
+        // --- GİRİŞ YAP İŞLEMİ ---
+        document.getElementById("login-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+
+            setLoading("login-submit-btn", true); // Yükleniyor başlat
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Alert yok, direkt yönlendir
+                    window.location.href = "anasayfa.html";
+                })
+                .catch((error) => {
+                    setLoading("login-submit-btn", false); // Yükleniyor'u durdur
+                    showError("E-posta veya şifre hatalı!");
+                    console.error(error);
+                });
+        });
+    </script>
+
+    <script>
+        var x = document.getElementById("login-form");
+        var y = document.getElementById("register-form");
+        var z = document.getElementById("btn-login");
+        var w = document.getElementById("btn-register");
+
+        function showRegister() {
+            x.style.display = "none";
+            y.style.display = "block";
+            w.style.background = "#27ae60"; w.style.color = "white";
+            z.style.background = "#fff"; z.style.color = "#555";
+            document.getElementById("error-box").style.display = "none"; // Hata varsa temizle
+        }
+
+        function showLogin() {
+            x.style.display = "block";
+            y.style.display = "none";
+            z.style.background = "#27ae60"; z.style.color = "white";
+            w.style.background = "#fff"; w.style.color = "#555";
+            document.getElementById("error-box").style.display = "none"; // Hata varsa temizle
+        }
+    </script>
+
+</body>
+</html>

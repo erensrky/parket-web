@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parket - Şehrin Otopark Pazaryeri</title>
+    <style>
+        /* --- Tasarım Kodları (Aynı) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f4f7f6; color: #333; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 24px; font-weight: bold; color: #2c3e50; text-decoration: none; }
+        .logo span { color: #27ae60; }
+        
+        /* Navbar Linkleri */
+        nav { display: flex; align-items: center; gap: 20px; }
+        nav a { text-decoration: none; color: #555; font-weight: 500; transition: color 0.3s; cursor: pointer; }
+        nav a:hover { color: #27ae60; }
+        
+        .btn-primary { background-color: #27ae60; color: white !important; padding: 10px 20px; border-radius: 25px; font-weight: bold; }
+        .btn-logout { color: #e74c3c !important; font-weight: bold; } /* Çıkış butonu kırmızı olsun */
+
+        /* Kullanıcı Bilgisi Alanı */
+        #user-info { display: none; align-items: center; gap: 15px; } /* Başlangıçta gizli */
+        #guest-info { display: flex; align-items: center; gap: 20px; } /* Başlangıçta açık */
+
+        .user-email { font-size: 0.9rem; color: #2c3e50; font-weight: bold; }
+
+        .hero { height: 80vh; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1506521781263-d8422e82f27a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'); background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 20px; color: white; }
+        .hero h1 { font-size: 3rem; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .hero p { font-size: 1.2rem; margin-bottom: 40px; max-width: 600px; }
+        .search-box { background: white; padding: 15px; border-radius: 50px; display: flex; width: 100%; max-width: 700px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .search-box input { flex: 1; border: none; padding: 15px; font-size: 16px; outline: none; border-radius: 50px; }
+        .search-box button { background-color: #27ae60; color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 16px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        .search-box button:hover { background-color: #219150; }
+        .features { display: flex; justify-content: space-around; padding: 60px 10%; text-align: center; flex-wrap: wrap; }
+        .feature-item { flex-basis: 30%; margin-bottom: 20px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .feature-item h3 { margin-bottom: 15px; color: #2c3e50; }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .search-box { flex-direction: column; background: transparent; box-shadow: none; }
+            .search-box input { width: 100%; margin-bottom: 10px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+            .search-box button { width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+            .feature-item { flex-basis: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="anasayfa.html" class="logo">Park<span>et</span></a>
+        <nav>
+            <a href="#">Nasıl Çalışır?</a>
+
+            <div id="guest-info">
+                <a href="login.html">Giriş Yap</a>
+               <a href="add-listing.html" class="btn-primary">İlan Ekle +</a>
+            </div>
+
+            <div id="user-info">
+                <span class="user-email" id="display-email">kullanici@mail.com</span>
+                <a href="add-listing.html" class="btn-primary">İlan Ekle +</a>
+                <a id="btn-logout" class="btn-logout">Çıkış Yap</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Park Yeri Aramaya Son</h1>
+        <p>Şehrin en kalabalık yerlerinde, uygun fiyatlı ve güvenli özel park yerlerini keşfedin.</p>
+        
+        <div class="search-box">
+            <input type="text" placeholder="Hangi semtte park yeri arıyorsun? (Örn: Kızılay)">
+            <button onclick="location.href='listings.html'">Yer Bul</button>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="feature-item">
+            <h3>📍 Kolay Bul</h3>
+            <p>Konumunu seç, sana en yakın müsait garajları anında haritada gör.</p>
+        </div>
+        <div class="feature-item">
+            <h3>🔒 Güvenli Kirala</h3>
+            <p>Onaylanmış yer sahipleri ile aklın arabanda kalmasın.</p>
+        </div>
+        <div class="feature-item">
+            <h3>💰 Gelir Elde Et</h3>
+            <p>Kullanmadığın garajın boş durmasın, saatlik kirala para kazan.</p>
+        </div>
+    </section>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        // SENİN CONFIG BİLGİLERİNİ BURAYA KOYMAYI UNUTMA
+        const firebaseConfig = {
+          apiKey: "AIzaSyATxJ1zjtjwfUxlHTQEOyi2KusIWOnh694",
+          authDomain: "parkbnb-c056e.firebaseapp.com",
+          projectId: "parkbnb-c056e",
+          storageBucket: "parkbnb-c056e.firebasestorage.app",
+          messagingSenderId: "436144809199",
+          appId: "1:436144809199:web:1a7e0f26d11994970ba71a",
+          measurementId: "G-KPCKCR48KF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // --- KULLANICI DURUMUNU KONTROL ET ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // KULLANICI GİRİŞ YAPMIŞSA:
+                console.log("Kullanıcı:", user);
+                document.getElementById("guest-info").style.display = "none";
+                document.getElementById("user-info").style.display = "flex";
+                
+                // BURASI DEĞİŞTİ: Önce İsim, yoksa Email göster
+                let displayName = user.displayName;
+                if (!displayName) {
+                    displayName = user.email; // İsim kaydedilmemişse maili göster
+                }
+
+                document.getElementById("display-email").innerText = "👤 " + displayName;
+            } else {
+                // KULLANICI YOKSA:
+                document.getElementById("guest-info").style.display = "flex";
+                document.getElementById("user-info").style.display = "none";
+            }
+        });
+
+        // --- ÇIKIŞ YAPMA İŞLEMİ ---
+        document.getElementById("btn-logout").addEventListener("click", () => {
+            signOut(auth).then(() => {
+                // Alert yok, direkt sayfayı yenile
+                location.reload(); 
+            }).catch((error) => {
+                console.error(error);
+            });
+        });
+
+    </script>
